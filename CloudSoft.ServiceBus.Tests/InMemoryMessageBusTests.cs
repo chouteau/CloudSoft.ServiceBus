@@ -24,7 +24,7 @@ namespace CloudSoft.ServiceBus.Tests
 				person.FirsName = i.ToString();
 				person.LastName = Guid.NewGuid().ToString();
 
-				m_Bus.Send(person, "test");
+				m_Bus.Send("test", person);
 			}
 
 			Console.WriteLine("---");
