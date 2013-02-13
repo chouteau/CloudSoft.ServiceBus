@@ -25,6 +25,7 @@ namespace CloudSoft.ServiceBus
 			var mq = GetQueue(queueName);
 			var m = CreateMessage();
 			m.Label = label ?? Guid.NewGuid().ToString();
+			// TODO : Serialize Async
 			m.Body = Serialize(body);
 			m.Recoverable = true;
 			mq.Send(m);
@@ -93,9 +94,13 @@ namespace CloudSoft.ServiceBus
 		{
 			var jsonSerializer = new Newtonsoft.Json.JsonSerializer();
 			var sb = new StringBuilder();
-			var textWriter = new System.IO.StringWriter(sb);
-			var jsonWriter = new Newtonsoft.Json.JsonTextWriter(textWriter);
-			jsonSerializer.Serialize(jsonWriter, body);
+			using (var textWriter = new System.IO.StringWriter(sb))
+			{
+				using (var jsonWriter = new Newtonsoft.Json.JsonTextWriter(textWriter))
+				{
+					jsonSerializer.Serialize(jsonWriter, body);
+				}
+			}
 			var result = sb.ToString();
 			return result;
 		}
