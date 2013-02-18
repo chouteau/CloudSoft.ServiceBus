@@ -47,6 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ServiceBusQueueReaderConfigurationElement.cs" />
+    <Compile Include="Configuration\ServiceBusConfigurationSection.cs" />
+    <Compile Include="Configuration\ServiceBusQueueReaderElementCollection.cs" />
     <Compile Include="DefaultDependencyResolver.cs" />
     <Compile Include="DiagnosticsLogger.cs" />
     <Compile Include="Extensions.cs" />
