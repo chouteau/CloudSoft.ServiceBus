@@ -7,6 +7,7 @@ namespace CloudSoft.ServiceBus
 {
 	public interface IServiceBus
 	{
+		void RegisterFromConfig(string configFileName = null);
 		void RegisterReader(string queueName, Type readerType);
 		void StartReading();
 		void StopReading();
