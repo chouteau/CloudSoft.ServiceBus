@@ -12,7 +12,7 @@ namespace CloudSoft.ServiceBus.Tests
 		public InMemoryMessageBusTests()
 		{
 			m_Bus = new ServiceBus.InMemoryServiceBus();
-			m_Bus.RegisterFromConfig();
+			m_Bus.RegisterReadersFromConfig();
 			m_Bus.StartReading();
 		}
 

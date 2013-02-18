@@ -62,7 +62,7 @@ namespace CloudSoft.ServiceBus
 			}
 		}
 
-		public void RegisterFromConfig(string configFileName = null)
+		public void RegisterReadersFromConfig(string configFileName = null)
 		{
 			string sectionName = "cloudSoft/serviceBus";
 			Configuration.ServiceBusConfigurationSection section = null;
