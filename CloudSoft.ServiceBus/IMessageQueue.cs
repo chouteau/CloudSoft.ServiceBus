@@ -12,5 +12,6 @@ namespace CloudSoft.ServiceBus
 		IMessage EndReceive(IAsyncResult result);
 		void Reset();
 		void Send(IMessage message);
+		void SendAsync(IMessage message);
 	}
 }
