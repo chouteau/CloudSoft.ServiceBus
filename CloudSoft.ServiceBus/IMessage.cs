@@ -9,7 +9,7 @@ namespace CloudSoft.ServiceBus
 	{
 		string QueueName { get; set; }
 		string Label { get; set; }
-		string Body { get; set; }
+		object Body { get; set; }
 		bool Recoverable { get; set; }
 	}
 }

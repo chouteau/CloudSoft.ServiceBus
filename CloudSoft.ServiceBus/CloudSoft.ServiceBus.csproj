@@ -59,6 +59,7 @@
     <Compile Include="IMessageReader.cs" />
     <Compile Include="InMemoryMessage.cs" />
     <Compile Include="MessageEnqueuedAsyncResult.cs" />
+    <Compile Include="MSMQJSonMessageFormatter.cs" />
     <Compile Include="ServiceBusBase.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageQueue.cs" />
@@ -74,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="ServiceBus.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

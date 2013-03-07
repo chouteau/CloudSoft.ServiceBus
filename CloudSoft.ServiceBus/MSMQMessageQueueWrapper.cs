@@ -12,6 +12,7 @@ namespace CloudSoft.ServiceBus
 		public MSMQMessageQueueWrapper(System.Messaging.MessageQueue queue)
 		{
 			m_Queue = queue;
+			m_Queue.Formatter = new MSMQJSonMessageFormatter();
 		}
 
 		#region IMessageQueue Members
@@ -21,10 +22,10 @@ namespace CloudSoft.ServiceBus
 			return m_Queue.BeginReceive();
 		}
 
-		public IMessage EndReceive(IAsyncResult result)
+		public T EndReceive<T>(IAsyncResult result)
 		{
 			var message = m_Queue.EndReceive(result);
-			return new MSMQMessageWrapper(message);
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message.Body as string);
 		}
 
 		public void Reset()

@@ -25,10 +25,11 @@ namespace CloudSoft.ServiceBus
 			return new MessageEnqueuedAsyncResult(m_Event);
 		}
 
-		public IMessage EndReceive(IAsyncResult r)
+		public T EndReceive<T>(IAsyncResult r)
 		{
 			var message = m_Queue.Dequeue();
-			return message as IMessage;
+			var wrapped = message as IMessage;
+			return (T)wrapped.Body;
 		}
 
 		public void Reset()
@@ -49,5 +50,6 @@ namespace CloudSoft.ServiceBus
 		}
 
 		#endregion
+
 	}
 }

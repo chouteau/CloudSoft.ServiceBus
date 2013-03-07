@@ -9,9 +9,8 @@ namespace CloudSoft.ServiceBus
 	public interface IMessageQueue
 	{
 		IAsyncResult BeginReceive();
-		IMessage EndReceive(IAsyncResult result);
+		T EndReceive<T>(IAsyncResult result);
 		void Reset();
 		void Send(IMessage message);
-		void SendAsync(IMessage message);
 	}
 }

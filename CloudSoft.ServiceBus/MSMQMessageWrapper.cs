@@ -7,11 +7,21 @@ namespace CloudSoft.ServiceBus
 {
 	public class MSMQMessageWrapper : IMessage
 	{
-		private System.Messaging.Message m_Message; 
+		private System.Messaging.Message m_Message;
+
+		public MSMQMessageWrapper()
+		{
+
+		}
 
 		public MSMQMessageWrapper(System.Messaging.Message message)
 		{
 			m_Message = message;
+		}
+
+		public System.Messaging.Message GetMessage()
+		{
+			return m_Message;
 		}
 
 		#region IMessage Members
@@ -30,11 +40,11 @@ namespace CloudSoft.ServiceBus
 			}
 		}
 
-		public string Body
+		public object Body
 		{
 			get
 			{
-				return m_Message.Body as string;
+				return m_Message.Body;
 			}
 			set
 			{

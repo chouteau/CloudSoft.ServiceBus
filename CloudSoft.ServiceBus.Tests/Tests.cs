@@ -11,6 +11,10 @@ namespace CloudSoft.ServiceBus.Tests
 		{
 			var tester = new InMemoryMessageBusTests();
 			tester.Add_Message();
+
+			var msmqTester = new MSMQMessageBusTests();
+			msmqTester.Add_Message();
+
 			Console.ReadKey();
 		}
 	}

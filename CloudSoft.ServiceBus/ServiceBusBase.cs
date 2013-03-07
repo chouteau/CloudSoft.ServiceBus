@@ -29,7 +29,7 @@ namespace CloudSoft.ServiceBus
 
 		#region IServiceBus Members
 
-		public void SendAsync(string queueName, object body, string label = null)
+		public void Send(string queueName, object body, string label = null)
 		{
 			if (m_Queue == null)
 			{
@@ -39,31 +39,31 @@ namespace CloudSoft.ServiceBus
 			{
 				m_Queue.Enqueue(() =>
 					{
-						Send(queueName, body, label);
+						SendInternal(queueName, body, label);
 					});
 				m_NewMessage.Set();
 			}
 		}
 
-		public void Send(string queueName, object body, string label = null)
+		private void SendInternal(string queueName, object body, string label = null)
 		{
-			string serializedBody = null;
-			try
-			{
-				serializedBody = Serialize(body);
-			}
-			catch (Exception ex)
-			{
-				ex.Data.Add("failed object serialization", body.ToString());
-				ex.Data.Add("QueueName", queueName);
-				ex.Data.Add("Label", label);
-				throw;
-			}
+			//string serializedBody = null;
+			//try
+			//{
+			//    serializedBody = Serialize(body);
+			//}
+			//catch (Exception ex)
+			//{
+			//    ex.Data.Add("failed object serialization", body.ToString());
+			//    ex.Data.Add("QueueName", queueName);
+			//    ex.Data.Add("Label", label);
+			//    throw;
+			//}
 
 			var mq = GetQueue(queueName);
 			var m = CreateMessage();
 			m.Label = label ?? Guid.NewGuid().ToString();
-			m.Body = serializedBody;
+			m.Body = body;
 			mq.Send(m);
 		}
 

@@ -14,8 +14,7 @@ namespace CloudSoft.ServiceBus
 		protected override IMessageQueue CreateMessageQueue(string queueName)
 		{
 			string path = System.Configuration.ConfigurationManager.ConnectionStrings[queueName].ConnectionString;
-			var  result = new System.Messaging.MessageQueue(path);
-			result.QueueName = queueName;
+			var  result = new System.Messaging.MessageQueue(path, System.Messaging.QueueAccessMode.SendAndReceive);
 			return new MSMQMessageQueueWrapper(result);
 		}
 
