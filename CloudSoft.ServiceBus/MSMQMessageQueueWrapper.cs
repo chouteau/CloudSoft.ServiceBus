@@ -39,5 +39,18 @@ namespace CloudSoft.ServiceBus
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			var result = base.ToString();
+			result += string.Format("CanRead:{0}{1}", m_Queue.CanRead, System.Environment.NewLine);
+			result += string.Format("CanWrite:{0}{1}", m_Queue.CanWrite, System.Environment.NewLine);
+			result += string.Format("FormatName:{0}{1}", m_Queue.FormatName, System.Environment.NewLine);
+			result += string.Format("Formatter:{0}{1}", m_Queue.Formatter, System.Environment.NewLine);
+			result += string.Format("Label:{0}{1}", m_Queue.Label, System.Environment.NewLine);
+			result += string.Format("MachineName:{0}{1}", m_Queue.MachineName, System.Environment.NewLine);
+			result += string.Format("QueueName:{0}{1}", m_Queue.QueueName, System.Environment.NewLine);
+			return result;
+		}
 	}
 }

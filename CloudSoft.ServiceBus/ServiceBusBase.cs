@@ -47,19 +47,6 @@ namespace CloudSoft.ServiceBus
 
 		private void SendInternal(string queueName, object body, string label = null)
 		{
-			//string serializedBody = null;
-			//try
-			//{
-			//    serializedBody = Serialize(body);
-			//}
-			//catch (Exception ex)
-			//{
-			//    ex.Data.Add("failed object serialization", body.ToString());
-			//    ex.Data.Add("QueueName", queueName);
-			//    ex.Data.Add("Label", label);
-			//    throw;
-			//}
-
 			var mq = GetQueue(queueName);
 			var m = CreateMessage();
 			m.Label = label ?? Guid.NewGuid().ToString();

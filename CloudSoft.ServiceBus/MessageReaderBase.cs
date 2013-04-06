@@ -58,8 +58,17 @@ namespace CloudSoft.ServiceBus
 		{
 			while (!m_Terminated && m_Queue != null)
 			{
-				IAsyncResult result;
-				result = m_Queue.BeginReceive();
+				IAsyncResult result = null;
+				try
+				{
+					result = m_Queue.BeginReceive();
+				}
+				catch(Exception ex)
+				{
+					Logger.Error(ex);
+					System.Threading.Thread.Sleep(500);
+					continue;
+				}
 				var waitHandles = new WaitHandle[] { m_EventStop, result.AsyncWaitHandle };
 				int index = WaitHandle.WaitAny(waitHandles);
 				if (index == 0)
