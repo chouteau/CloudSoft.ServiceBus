@@ -78,10 +78,10 @@ namespace CloudSoft.ServiceBus
 					break;
 				}
 
-				var m = m_Queue.EndReceive<T>(result);
-				m_Queue.Reset();
 				try
 				{
+					var m = m_Queue.EndReceive<T>(result);
+					m_Queue.Reset();
 					ProcessMessage(m);
 				}
 				catch(Exception ex)
