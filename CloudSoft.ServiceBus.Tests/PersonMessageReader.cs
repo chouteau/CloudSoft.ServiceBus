@@ -9,7 +9,7 @@ namespace CloudSoft.ServiceBus.Tests
 	{
 		public override void ProcessMessage(Person message)
 		{
-			Console.WriteLine(message.FirsName);
+			Console.WriteLine("{0}:{1}", System.Threading.Thread.CurrentThread.Name, message.FirsName);
 		}
 	}
 }

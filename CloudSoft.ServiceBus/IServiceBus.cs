@@ -8,7 +8,7 @@ namespace CloudSoft.ServiceBus
 	public interface IServiceBus
 	{
 		void RegisterReadersFromConfig(string configFileName = null);
-		void RegisterReader(string queueName, Type readerType);
+		void RegisterReader(string queueName, Type readerType, Type mediumType = null);
 		void StartReading();
 		void StopReading();
 		void PauseReading();

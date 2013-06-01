@@ -45,8 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MSMQMessageBusTests.cs" />
-    <Compile Include="InMemoryMessageBusTests.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="PersonMessageReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

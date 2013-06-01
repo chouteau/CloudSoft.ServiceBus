@@ -1,7 +1,7 @@
 ﻿using System;
 namespace CloudSoft.ServiceBus
 {
-	interface IMessageReader : IDisposable
+	public interface IMessageReader : IDisposable
 	{
 		void Pause();
 		void Start(IMessageQueue queue);

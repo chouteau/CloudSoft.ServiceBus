@@ -8,11 +8,37 @@ using System.Configuration;
 
 namespace CloudSoft.ServiceBus
 {
-	public abstract class ServiceBusBase : IServiceBus, IDisposable
+	public class BusManager : IServiceBus, IDisposable
 	{
-		private System.Collections.Concurrent.ConcurrentDictionary<string,IMessageQueue> m_QueueList;
-		private System.Collections.Concurrent.ConcurrentDictionary<string, Type> m_ReaderList;
-		private List<IMessageReader> m_Readers;
+		private class Registration
+		{
+			public Registration()
+			{
+				Reader = new Lazy<IMessageReader>(() =>
+					{
+						var result = GlobalConfiguration.Configuration.DependencyResolver.GetService(TypeReader);
+						return (IMessageReader)result;
+					}, true);
+
+				Medium = new Lazy<IMedium>(() =>
+					{
+						return (IMedium)GlobalConfiguration.Configuration.DependencyResolver.GetService(TypeMedium);
+					}, true);
+
+				Queue = new Lazy<IMessageQueue>(() =>
+					{
+						return Medium.Value.CreateMessageQueue(QueueName);
+					}, true);
+			}
+			public string QueueName { get; set; }
+			public Type TypeReader { get; set; }
+			public Lazy<IMessageReader> Reader { get; set; }
+			public Type TypeMedium { get; set; }
+			public Lazy<IMedium> Medium { get; set; }
+			public Lazy<IMessageQueue> Queue { get; set; }
+		}
+
+		private SynchronizedCollection<Registration> m_RegistrationList;
 
 		private Queue<Action> m_Queue;
 		private ManualResetEvent m_NewMessage = new ManualResetEvent(false);
@@ -20,11 +46,9 @@ namespace CloudSoft.ServiceBus
 		private bool m_Terminated = false;
 		private Thread m_SendThread;
 
-		public ServiceBusBase()
+		public BusManager()
 		{
-			m_QueueList = new System.Collections.Concurrent.ConcurrentDictionary<string, IMessageQueue>();
-			m_ReaderList = new System.Collections.Concurrent.ConcurrentDictionary<string, Type>();
-			m_Readers = new List<IMessageReader>();
+			m_RegistrationList = new SynchronizedCollection<Registration>();
 		}
 
 		#region IServiceBus Members
@@ -47,8 +71,13 @@ namespace CloudSoft.ServiceBus
 
 		private void SendInternal(string queueName, object body, string label = null)
 		{
-			var mq = GetQueue(queueName);
-			var m = CreateMessage();
+			var registration = m_RegistrationList.SingleOrDefault(i => i.QueueName.Equals(queueName, StringComparison.InvariantCultureIgnoreCase));
+			if (registration == null)
+			{
+				return;
+			}
+			var mq = registration.Queue.Value;
+			var m = registration.Medium.Value.CreateMessage();
 			m.Label = label ?? Guid.NewGuid().ToString();
 			m.Body = body;
 			mq.Send(m);
@@ -72,81 +101,85 @@ namespace CloudSoft.ServiceBus
 
 			foreach (Configuration.ServiceBusQueueReaderConfigurationElement item in section.QueueReaders)
 			{
-				var type = Type.GetType(item.Type);
-				if (type == null)
+				if (!item.Enabled)
 				{
-					GlobalConfiguration.Configuration.Logger.Warn("Type {0} reader for servicebus does not exists", item.Type);
 					continue;
 				}
-				RegisterReader(item.QueueName, type);
+				var reader = Type.GetType(item.TypeReader);
+				if (reader == null)
+				{
+					GlobalConfiguration.Configuration.Logger.Warn("Type {0} reader for servicebus does not exists", item.TypeReader);
+					continue;
+				}
+				var medium = Type.GetType(item.TypeMedium);
+				if (medium == null)
+				{
+					if (!string.IsNullOrEmpty(item.TypeMedium))
+					{
+						GlobalConfiguration.Configuration.Logger.Warn("Type {0} medium for servicebus does not exists", item.TypeMedium);
+						continue;
+					}
+					medium = typeof(InMemoryMedium);
+				}
+				RegisterReader(item.QueueName, reader, medium);
 			}
 		}
 
-		public void RegisterReader(string queueName, Type reader)
+		public void RegisterReader(string queueName, Type reader, Type medium = null)
 		{
-			if (m_ReaderList.ContainsKey(queueName))
+			if (m_RegistrationList.Any(i => i.QueueName.Equals(queueName, StringComparison.InvariantCultureIgnoreCase)))
 			{
 				return;
 			}
-			m_ReaderList.TryAdd(queueName, reader);
+			lock (m_RegistrationList.SyncRoot)
+			{
+				var registration = new Registration()
+				{
+					QueueName = queueName,
+					TypeReader = reader,
+					TypeMedium = medium ?? typeof(InMemoryMedium),
+				};
+
+				m_RegistrationList.Add(registration);
+			}
 		}
 
 		public void StartReading()
 		{
-			foreach (var item in m_Readers)
+			foreach (var item in m_RegistrationList)
 			{
-				item.Stop();
-				item.Dispose();
+				if (item.Reader.IsValueCreated)
+				{
+					item.Reader.Value.Stop();
+				}
 			}
-			m_Readers.Clear();
 
-			foreach (var item in m_ReaderList)
+			foreach (var item in m_RegistrationList)
 			{
-				var reader = (IMessageReader) GlobalConfiguration.Configuration.DependencyResolver.GetService(item.Value);
-				var queue = GetQueue(item.Key);
-				m_Readers.Add(reader);
-				reader.Start(queue);
+				var medium = item.Medium.Value;
+				var queue = item.Queue.Value;
+				item.Reader.Value.Start(queue);
 			}
 		}
 
 		public void StopReading()
 		{
-			foreach (var item in m_Readers)
+			foreach (var item in m_RegistrationList)
 			{
-				item.Stop();
-				item.Dispose();
+				item.Reader.Value.Stop();
+				item.Reader.Value.Dispose();
 			}
-
-			m_Readers.Clear();
 		}
 
 		public void PauseReading()
 		{
-			foreach (var item in m_Readers)
+			foreach (var item in m_RegistrationList)
 			{
-				item.Pause();
+				item.Reader.Value.Pause();
 			}
 		}
 
 		#endregion
-
-		protected abstract IMessage CreateMessage();
-		protected abstract IMessageQueue CreateMessageQueue(string queueName);
-
-		private IMessageQueue GetQueue(string queueName)
-		{
-			IMessageQueue mq = null;
-			if (!m_QueueList.ContainsKey(queueName))
-			{
-				mq = CreateMessageQueue(queueName);
-				m_QueueList.TryAdd(queueName, mq);
-			}
-			else
-			{
-				mq = m_QueueList[queueName];
-			}
-			return mq;
-		}
 
 		private string Serialize(object body)
 		{

@@ -5,20 +5,20 @@ using System.Text;
 
 namespace CloudSoft.ServiceBus
 {
-	public class MSMQServiceBus : ServiceBusBase
+	public class MSMQMedium : IMedium
 	{
-		public MSMQServiceBus()
+		public MSMQMedium()
 		{
 		}
 
-		protected override IMessageQueue CreateMessageQueue(string queueName)
+		public IMessageQueue CreateMessageQueue(string queueName)
 		{
 			string path = System.Configuration.ConfigurationManager.ConnectionStrings[queueName].ConnectionString;
 			var  result = new System.Messaging.MessageQueue(path, System.Messaging.QueueAccessMode.SendAndReceive);
-			return new MSMQMessageQueueWrapper(result);
+			return new MSMQMessageQueueWrapper(result, queueName);
 		}
 
-		protected override IMessage CreateMessage()
+		public IMessage CreateMessage()
 		{
 			var result = new System.Messaging.Message();
 			result.Priority = System.Messaging.MessagePriority.Normal;

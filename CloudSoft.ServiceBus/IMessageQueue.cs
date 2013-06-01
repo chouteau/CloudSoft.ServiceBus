@@ -8,6 +8,7 @@ namespace CloudSoft.ServiceBus
 {
 	public interface IMessageQueue
 	{
+		string QueueName { get; }
 		IAsyncResult BeginReceive();
 		T EndReceive<T>(IAsyncResult result);
 		void Reset();

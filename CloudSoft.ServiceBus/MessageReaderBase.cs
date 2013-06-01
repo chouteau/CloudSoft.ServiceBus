@@ -25,6 +25,7 @@ namespace CloudSoft.ServiceBus
 			m_EventStop = new ManualResetEvent(false);
 			m_Queue = queue;
 			m_Thread = new Thread(new ThreadStart(Run));
+			m_Thread.Name = string.Format("MessageReaderBase:{0}", queue.QueueName);
 			m_Thread.Start();
 		}
 

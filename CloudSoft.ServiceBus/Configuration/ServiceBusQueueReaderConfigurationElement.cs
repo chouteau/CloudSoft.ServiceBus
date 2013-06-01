@@ -8,6 +8,11 @@ namespace CloudSoft.ServiceBus.Configuration
 {
 	public class ServiceBusQueueReaderConfigurationElement : ConfigurationElement
 	{
+		public ServiceBusQueueReaderConfigurationElement()
+		{
+			this.Enabled = true;
+		}
+
 		[ConfigurationProperty("queueName", IsRequired = true)]
 		public string QueueName
 		{
@@ -21,16 +26,42 @@ namespace CloudSoft.ServiceBus.Configuration
 			}
 		}
 
-		[ConfigurationProperty("type", IsRequired = true)]
-		public string Type
+		[ConfigurationProperty("typeReader", IsRequired = true)]
+		public string TypeReader
 		{
 			get
 			{
-				return (string)this["type"];
+				return (string)this["typeReader"];
 			}
 			set
 			{
-				this["type"] = value;
+				this["typeReader"] = value;
+			}
+		}
+
+		[ConfigurationProperty("typeMedium", IsRequired = false)]
+		public string TypeMedium
+		{
+			get
+			{
+				return (string)this["typeMedium"];
+			}
+			set
+			{
+				this["typeMedium"] = value;
+			}
+		}
+
+		[ConfigurationProperty("enabled", IsRequired = false)]
+		public bool Enabled
+		{
+			get
+			{
+				return (bool)this["enabled"];
+			}
+			set
+			{
+				this["enabled"] = value;
 			}
 		}
 

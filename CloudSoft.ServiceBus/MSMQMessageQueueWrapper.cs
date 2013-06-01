@@ -9,13 +9,16 @@ namespace CloudSoft.ServiceBus
 	{
 		private System.Messaging.MessageQueue m_Queue;
 
-		public MSMQMessageQueueWrapper(System.Messaging.MessageQueue queue)
+		public MSMQMessageQueueWrapper(System.Messaging.MessageQueue queue, string queueName)
 		{
 			m_Queue = queue;
 			m_Queue.Formatter = new MSMQJSonMessageFormatter();
+			QueueName = queueName;
 		}
 
 		#region IMessageQueue Members
+
+		public string QueueName { get ; private set; }
 
 		public IAsyncResult BeginReceive()
 		{
@@ -25,7 +28,8 @@ namespace CloudSoft.ServiceBus
 		public T EndReceive<T>(IAsyncResult result)
 		{
 			var message = m_Queue.EndReceive(result);
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message.Body as string);
+			var body = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(message.Body as string);
+			return body;
 		}
 
 		public void Reset()

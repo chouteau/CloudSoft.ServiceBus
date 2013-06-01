@@ -12,13 +12,16 @@ namespace CloudSoft.ServiceBus
 		private System.Collections.Queue m_Queue;
 		private ManualResetEvent m_Event;
 
-		public InMemoryMessageQueueWrapper(System.Collections.Queue queue)
+		public InMemoryMessageQueueWrapper(System.Collections.Queue queue, string queueName)
 		{
 			m_Queue = queue;
 			m_Event = new ManualResetEvent(false);
+			QueueName = queueName;
 		}
 
 		#region IMessageQueue Members
+
+		public string QueueName { get; private set; }
 
 		public IAsyncResult BeginReceive()
 		{
